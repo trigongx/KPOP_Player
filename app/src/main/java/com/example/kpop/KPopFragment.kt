@@ -23,7 +23,7 @@ class KPopFragment : Fragment(),KPopView {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentKPopBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -42,14 +42,16 @@ class KPopFragment : Fragment(),KPopView {
     }
 
     override fun setVideo(model: KPopModel) {
-        binding.youtubePlayerView.getYouTubePlayerWhenReady(object:YouTubePlayerCallback{
-            override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
-                val songId = model.data.first().video.replace("https://youtu.be/","")
-                youTubePlayer.loadVideo(songId, 0f)
-            }
-        })
-        binding.tvArtistName.text = model.data.first().artist
-        binding.tvSongName.text = model.data.first().songName
+        model.data.firstOrNull()?.let { firstItem ->
+            binding.youtubePlayerView.getYouTubePlayerWhenReady(object: YouTubePlayerCallback{
+                override fun onYouTubePlayer(youTubePlayer: YouTubePlayer) {
+                    val songId = firstItem.video.replace("https://youtu.be/","")
+                    youTubePlayer.loadVideo(songId, 0f)
+                }
+            })
+            binding.tvArtistName.text = firstItem.artist
+            binding.tvSongName.text = firstItem.songName
+        } ?: showError("No video found")
     }
 
     override fun showError(error: String) {
